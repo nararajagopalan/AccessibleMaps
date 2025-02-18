@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { GOOGLE_MAPS_API_KEY } from "../config/env";
@@ -23,6 +23,11 @@ import PlaceCard from "../components/PlaceCard";
 
 const { height } = Dimensions.get("window");
 
+type MarkerCoordinate = {
+  latitude: number;
+  longitude: number;
+};
+
 export default function MapScreen() {
   const navigation = useNavigation();
   const [userLocation, setUserLocation] =
@@ -30,22 +35,31 @@ export default function MapScreen() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [lastSearchQuery, setLastSearchQuery] = useState<string>("");
+  const [mapReady, setMapReady] = useState(false);
+
+  console.log("Google Maps API Key:", GOOGLE_MAPS_API_KEY);
+  console.log("Platform:", Platform.OS);
 
   useEffect(() => {
     (async () => {
+      console.log("Requesting location permissions...");
       const { status } = await Location.requestForegroundPermissionsAsync();
+      console.log("Location permission status:", status);
       if (status !== "granted") {
         console.error("Location permission denied");
         return;
       }
 
+      console.log("Getting current position...");
       const location = await Location.getCurrentPositionAsync({});
+      console.log("Got location:", location);
       setUserLocation(location);
     })();
   }, []);
 
   const handleSearch = async (query: string) => {
     setLastSearchQuery(query);
+    console.log("Searching for:", query);
     try {
       if (!userLocation) return;
 
@@ -58,6 +72,7 @@ export default function MapScreen() {
       );
 
       const data = await response.json();
+      console.log("Search results:", data.results?.length || 0);
 
       if (data.results) {
         const searchResults = await Promise.all(
@@ -117,6 +132,15 @@ export default function MapScreen() {
     }, [lastSearchQuery])
   );
 
+  const getMapStyle = (isSearchActive: boolean, hasPlaces: boolean) => ({
+    width: Dimensions.get("window").width,
+    height:
+      isSearchActive && hasPlaces
+        ? Dimensions.get("window").height * 0.5
+        : Dimensions.get("window").height,
+    backgroundColor: "lightgray",
+  });
+
   return (
     <View style={styles.container}>
       <SearchBar onSearch={handleSearch} />
@@ -124,41 +148,31 @@ export default function MapScreen() {
         <Ionicons name="log-out-outline" size={24} color="#666" />
       </TouchableOpacity>
       <MapView
-        provider={PROVIDER_GOOGLE}
-        style={[
-          styles.map,
-          isSearchActive && places.length > 0 && styles.halfMap,
-        ]}
-        initialRegion={
-          userLocation
-            ? {
-                latitude: userLocation.coords.latitude,
-                longitude: userLocation.coords.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }
-            : undefined
-        }
+        style={getMapStyle(isSearchActive, places.length > 0)}
+        region={{
+          latitude: userLocation?.coords.latitude ?? 37.78825,
+          longitude: userLocation?.coords.longitude ?? -122.4324,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
+        }}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
       >
-        {userLocation && (
-          <Marker
-            coordinate={{
-              latitude: userLocation.coords.latitude,
-              longitude: userLocation.coords.longitude,
-            }}
-            title="You are here"
-            pinColor="blue"
-          />
-        )}
-        {places.map((place) => (
-          <Marker
-            key={place.id}
-            coordinate={place.location}
-            title={place.name}
-          />
-        ))}
+        {places.map((place) => {
+          const coordinate: MarkerCoordinate = {
+            latitude: place.location.latitude,
+            longitude: place.location.longitude,
+          };
+          return (
+            <Marker
+              key={place.id}
+              coordinate={coordinate}
+              title={place.name}
+              pinColor="red"
+            />
+          );
+        })}
       </MapView>
-
       {isSearchActive && places.length > 0 && (
         <FlatList
           style={styles.placesList}
@@ -174,16 +188,13 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  halfMap: {
-    height: height * 0.5,
+    backgroundColor: "white",
   },
   placesList: {
-    flex: 1,
+    height: Dimensions.get("window").height * 0.5,
     backgroundColor: "white",
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
   },
   logoutButton: {
     position: "absolute",

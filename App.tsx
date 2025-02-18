@@ -11,6 +11,7 @@ import MapScreen from "./src/screens/MapScreen";
 import GoogleReviewsScreen from "./src/screens/GoogleReviewsScreen";
 import AccessibilityReviewsScreen from "./src/screens/AccessibilityReviewsScreen";
 import AddAccessibilityReviewScreen from "./src/screens/AddAccessibilityReviewScreen";
+import TestMapScreen from "./src/screens/TestMapScreen";
 
 // Types
 export type RootStackParamList = {

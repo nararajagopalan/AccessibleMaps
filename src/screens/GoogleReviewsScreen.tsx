@@ -13,7 +13,7 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../../App";
 import { GoogleReview } from "../types";
 import { GOOGLE_MAPS_API_KEY } from "../config/env";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 type GoogleReviewsRouteProp = RouteProp<RootStackParamList, "GoogleReviews">;
 
@@ -118,20 +118,29 @@ export default function GoogleReviewsScreen() {
       renderItem={({ item }) => (
         <View style={styles.reviewCard}>
           <View style={styles.reviewHeader}>
-            {item.profilePhotoUrl && (
+            {item.profile_photo_url && (
               <Image
-                source={{ uri: item.profilePhotoUrl }}
+                source={{ uri: item.profile_photo_url }}
                 style={styles.profilePhoto}
               />
             )}
             <View>
-              <Text style={styles.authorName}>{item.authorName}</Text>
+              <Text style={styles.authorName}>{item.author_name}</Text>
               <Text style={styles.reviewTime}>
-                {item.time.toLocaleDateString()}
+                {new Date(item.time * 1000).toLocaleDateString()}
               </Text>
             </View>
           </View>
-          <View style={styles.ratingContainer}>{renderStars(item.rating)}</View>
+          <View style={styles.ratingContainer}>
+            {[...Array(5)].map((_, i) => (
+              <Ionicons
+                key={i}
+                name={i < item.rating ? "star" : "star-outline"}
+                size={16}
+                color="#FFD700"
+              />
+            ))}
+          </View>
           <Text style={styles.reviewText}>{item.text}</Text>
         </View>
       )}
