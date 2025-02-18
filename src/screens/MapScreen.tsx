@@ -10,7 +10,7 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
-import { GOOGLE_MAPS_API_KEY } from "../config/env";
+import { GOOGLE_MAPS_API_KEY } from "../config";
 import { logOut } from "../services/firebase";
 import { Ionicons } from "@expo/vector-icons";
 import { getDoc, doc } from "firebase/firestore";

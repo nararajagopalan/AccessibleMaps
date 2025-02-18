@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -14,7 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { RootStackParamList } from "../../App";
 import { addAccessibilityReview } from "../services/firebase";
-import { auth } from "../config/firebase";
+import { auth, timestamp } from "../config/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
+import { FirestorePlace } from "../types";
 
 type AddAccessibilityReviewRouteProp = RouteProp<
   RootStackParamList,
@@ -29,6 +32,15 @@ export default function AddAccessibilityReviewScreen() {
   const [seatingRating, setSeatingRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [placeData, setPlaceData] = useState<FirestorePlace | null>(null);
+
+  useEffect(() => {
+    const fetchPlaceData = async () => {
+      const placeDoc = await getDoc(doc(db, "places", route.params.placeId));
+      setPlaceData((placeDoc.data() as FirestorePlace) || null);
+    };
+    fetchPlaceData();
+  }, [route.params.placeId]);
 
   const handlePhotoUpload = async () => {
     const permissionResult =
@@ -76,6 +88,11 @@ export default function AddAccessibilityReviewScreen() {
 
   const handleSubmit = async () => {
     try {
+      if (!auth.currentUser) {
+        Alert.alert("Error", "You must be logged in to submit a review");
+        return;
+      }
+
       if (entryRating === 0 || restroomRating === 0 || seatingRating === 0) {
         Alert.alert("Error", "Please rate all categories");
         return;
@@ -91,8 +108,8 @@ export default function AddAccessibilityReviewScreen() {
         placeName: route.params.placeName,
       });
 
-      await addAccessibilityReview(route.params.placeId, {
-        userId: auth.currentUser!.uid,
+      const reviewData = {
+        userId: auth.currentUser.uid,
         placeId: route.params.placeId,
         placeName: route.params.placeName,
         entryRating,
@@ -100,8 +117,20 @@ export default function AddAccessibilityReviewScreen() {
         seatingRating,
         overallRating: (entryRating + restroomRating + seatingRating) / 3,
         reviewText,
-        photos: [],
-      });
+        createdAt: timestamp(),
+        photos: photos,
+      };
+
+      await addAccessibilityReview(route.params.placeId, reviewData);
+
+      const currentAggregateRating =
+        placeData?.aggregateAccessibilityRating || 0;
+      const currentReviewCount = placeData?.accessibilityReviewCount || 0;
+
+      const newAggregateRating =
+        (currentAggregateRating * currentReviewCount +
+          (entryRating + restroomRating + seatingRating) / 3) /
+        (currentReviewCount + 1);
 
       navigation.goBack();
     } catch (error) {

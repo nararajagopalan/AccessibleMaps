@@ -20,9 +20,11 @@ export type FirestorePlace = {
   accessibilityReviewCount: number;
   reviews?: {
     userId: string;
-    rating: number;
-    comment: string;
-    timestamp: Date;
+    entryRating: number;
+    restroomRating: number;
+    seatingRating: number;
+    reviewText: string;
+    createdAt: FirebaseFirestore.Timestamp;
     photos?: string[];
   }[];
 };

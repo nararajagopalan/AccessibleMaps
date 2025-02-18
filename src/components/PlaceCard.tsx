@@ -6,9 +6,11 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Linking,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../App";
 import { Place } from "../types";
@@ -24,6 +26,20 @@ interface PlaceCardProps {
 export default function PlaceCard({ place, onReviewAdded }: PlaceCardProps) {
   const navigation = useNavigation<PlaceCardNavigationProp>();
 
+  const openDirections = () => {
+    const destination = encodeURIComponent(place.address);
+    const url = Platform.select({
+      ios: `maps:?daddr=${destination}`,
+      android: `google.navigation:q=${destination}`,
+    });
+
+    if (url) {
+      Linking.openURL(url).catch((err) =>
+        console.error("Error opening maps:", err)
+      );
+    }
+  };
+
   return (
     <View style={styles.card}>
       {place.photos && place.photos.length > 0 && (
@@ -33,6 +49,13 @@ export default function PlaceCard({ place, onReviewAdded }: PlaceCardProps) {
       <View style={styles.content}>
         <Text style={styles.name}>{place.name}</Text>
         <View style={styles.ratingContainer}>
+          <TouchableOpacity onPress={openDirections}>
+            <View style={styles.ratingBox}>
+              <Ionicons name="navigate" size={16} color="#4CAF50" />
+              <Text style={styles.rating}>Directions</Text>
+            </View>
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() =>
               navigation.navigate("GoogleReviews", {
@@ -152,5 +175,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     marginTop: 4,
+  },
+  directionsButton: {
+    marginRight: 8,
+    backgroundColor: "#E8F5E9",
+  },
+  directionsText: {
+    color: "#4CAF50",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
   },
 });
