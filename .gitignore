@@ -33,3 +33,7 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Config files with sensitive data
+src/config/env.ts
+src/config/firebase.ts
