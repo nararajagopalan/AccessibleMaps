@@ -8,7 +8,9 @@ export interface FirestorePlace {
     longitude: number;
   };
   lastUpdated: Date;
-  aggregateAccessibilityRating: number;
+  aggregatePhysicalRating: number;
+  aggregateSensoryRating: number;
+  aggregateCognitiveRating: number;
   accessibilityReviewCount: number;
 }
 
@@ -17,10 +19,9 @@ export interface AccessibilityReview {
   userId: string;
   placeId: string;
   placeName: string;
-  entryRating: number;
-  restroomRating: number;
-  seatingRating: number;
-  overallRating: number;
+  physicalRating: number;
+  sensoryRating: number;
+  cognitiveRating: number;
   reviewText: string;
   photos: string[];
   createdAt: Timestamp;

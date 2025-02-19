@@ -119,23 +119,11 @@ export default function AddAccessibilityReviewScreen() {
         physicalRating,
         sensoryRating,
         cognitiveRating,
-        overallRating: (physicalRating + sensoryRating + cognitiveRating) / 3,
         reviewText,
-        createdAt: timestamp(),
         photos: photos,
       };
 
       await addAccessibilityReview(route.params.placeId, reviewData);
-
-      const currentAggregateRating =
-        placeData?.aggregateAccessibilityRating || 0;
-      const currentReviewCount = placeData?.accessibilityReviewCount || 0;
-
-      const newAggregateRating =
-        (currentAggregateRating * currentReviewCount +
-          (physicalRating + sensoryRating + cognitiveRating) / 3) /
-        (currentReviewCount + 1);
-
       navigation.goBack();
     } catch (error) {
       console.error("Error submitting review:", error);

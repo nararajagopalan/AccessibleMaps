@@ -73,24 +73,39 @@ export const addAccessibilityReview = async (
     if (placeDoc.exists()) {
       const placeData = placeDoc.data() as FirestorePlace;
       const newCount = placeData.accessibilityReviewCount + 1;
-      const newRating =
-        (placeData.aggregateAccessibilityRating *
+
+      // Calculate new aggregate ratings
+      const newPhysicalRating =
+        (placeData.aggregatePhysicalRating *
           placeData.accessibilityReviewCount +
-          review.overallRating) /
+          review.physicalRating) /
+        newCount;
+      const newSensoryRating =
+        (placeData.aggregateSensoryRating * placeData.accessibilityReviewCount +
+          review.sensoryRating) /
+        newCount;
+      const newCognitiveRating =
+        (placeData.aggregateCognitiveRating *
+          placeData.accessibilityReviewCount +
+          review.cognitiveRating) /
         newCount;
 
       await updateDoc(placeRef, {
         accessibilityReviewCount: newCount,
-        aggregateAccessibilityRating: newRating,
+        aggregatePhysicalRating: newPhysicalRating,
+        aggregateSensoryRating: newSensoryRating,
+        aggregateCognitiveRating: newCognitiveRating,
         lastUpdated: serverTimestamp(),
       });
     } else {
       // First review for this place - create the place document
       await setDoc(placeRef, {
         accessibilityReviewCount: 1,
-        aggregateAccessibilityRating: review.overallRating,
+        aggregatePhysicalRating: review.physicalRating,
+        aggregateSensoryRating: review.sensoryRating,
+        aggregateCognitiveRating: review.cognitiveRating,
         lastUpdated: serverTimestamp(),
-        name: review.placeName, // Add this if available in your review object
+        name: review.placeName,
         placeId: placeId,
       });
     }
@@ -112,9 +127,21 @@ const updatePlaceAggregates = async (placeId: string) => {
       (doc) => doc.data() as AccessibilityReview
     );
     const count = reviews.length;
-    const avgRating =
+
+    // Calculate averages for each rating type
+    const avgPhysicalRating =
       count > 0
-        ? reviews.reduce((sum, review) => sum + review.overallRating, 0) / count
+        ? reviews.reduce((sum, review) => sum + review.physicalRating, 0) /
+          count
+        : 0;
+    const avgSensoryRating =
+      count > 0
+        ? reviews.reduce((sum, review) => sum + review.sensoryRating, 0) / count
+        : 0;
+    const avgCognitiveRating =
+      count > 0
+        ? reviews.reduce((sum, review) => sum + review.cognitiveRating, 0) /
+          count
         : 0;
 
     const placeRef = doc(db, "places", placeId);
@@ -122,14 +149,16 @@ const updatePlaceAggregates = async (placeId: string) => {
       placeRef,
       {
         accessibilityReviewCount: count,
-        aggregateAccessibilityRating: avgRating,
+        aggregatePhysicalRating: avgPhysicalRating,
+        aggregateSensoryRating: avgSensoryRating,
+        aggregateCognitiveRating: avgCognitiveRating,
         lastUpdated: serverTimestamp(),
       },
       { merge: true }
     );
 
     console.log(
-      `Updated aggregates for ${placeId}: count=${count}, avg=${avgRating}`
+      `Updated aggregates for ${placeId}: count=${count}, physical=${avgPhysicalRating}, sensory=${avgSensoryRating}, cognitive=${avgCognitiveRating}`
     );
   } catch (error) {
     console.error("Error updating place aggregates:", error);

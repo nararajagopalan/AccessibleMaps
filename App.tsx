@@ -16,18 +16,8 @@ import PlaceScreen from "./src/screens/PlaceScreen";
 // Types
 export type RootStackParamList = {
   Map: undefined;
-  Place: {
-    placeId: string;
-    placeName: string;
-  };
-  GoogleReviews: {
-    placeId: string;
-    placeName: string;
-  };
-  AddAccessibilityReview: {
-    placeId: string;
-    placeName: string;
-  };
+  Place: { placeId: string; placeName: string };
+  AddAccessibilityReview: { placeId: string; placeName: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
