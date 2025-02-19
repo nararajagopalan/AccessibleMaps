@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -36,6 +36,7 @@ export default function MapScreen() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [lastSearchQuery, setLastSearchQuery] = useState<string>("");
   const [mapReady, setMapReady] = useState(false);
+  const mapRef = useRef<MapView>(null);
 
   console.log("Google Maps API Key:", GOOGLE_MAPS_API_KEY);
   console.log("Platform:", Platform.OS);
@@ -112,6 +113,15 @@ export default function MapScreen() {
 
         setPlaces(searchResults);
         setIsSearchActive(true);
+
+        if (searchResults.length > 0) {
+          mapRef.current?.animateToRegion({
+            latitude: searchResults[0].location.latitude,
+            longitude: searchResults[0].location.longitude,
+            latitudeDelta: 0.02,
+            longitudeDelta: 0.02,
+          });
+        }
       }
     } catch (error) {
       console.error("Error searching places:", error);
@@ -148,6 +158,7 @@ export default function MapScreen() {
         <Ionicons name="log-out-outline" size={24} color="#666" />
       </TouchableOpacity>
       <MapView
+        ref={mapRef}
         style={getMapStyle(isSearchActive, places.length > 0)}
         region={{
           latitude: userLocation?.coords.latitude ?? 37.78825,

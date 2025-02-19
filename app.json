@@ -1,5 +1,7 @@
 {
   "expo": {
+    "scheme": "accessiblemaps",
+    "platforms": ["ios", "android"],
     "name": "AccessibleMaps",
     "slug": "AccessibleMaps",
     "version": "1.0.0",
