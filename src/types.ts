@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export type Place = {
   id: string;
   place_id: string;
@@ -9,40 +11,42 @@ export type Place = {
   address: string;
   googleRating: number;
   googleReviewCount: number;
-  accessibilityRating: number;
+  physicalRating: number;
+  sensoryRating: number;
+  cognitiveRating: number;
   accessibilityReviewCount: number;
   photos: string[];
   phoneNumber?: string;
 };
 
 export type FirestorePlace = {
-  aggregateAccessibilityRating: number;
+  aggregatePhysicalRating: number;
+  aggregateSensoryRating: number;
+  aggregateCognitiveRating: number;
   accessibilityReviewCount: number;
   reviews?: {
     userId: string;
-    entryRating: number;
-    restroomRating: number;
-    seatingRating: number;
+    physicalRating: number;
+    sensoryRating: number;
+    cognitiveRating: number;
     reviewText: string;
-    createdAt: FirebaseFirestore.Timestamp;
+    createdAt: Timestamp;
     photos?: string[];
   }[];
 };
 
-export type AccessibilityReview = {
+export interface AccessibilityReview {
   id: string;
   userId: string;
   placeId: string;
-  entryRating: number;
-  restroomRating: number;
-  seatingRating: number;
+  placeName: string;
+  physicalRating: number;
+  sensoryRating: number;
+  cognitiveRating: number;
   reviewText: string;
-  createdAt: {
-    toDate: () => Date;
-    toMillis: () => number;
-  };
-  photos?: string[];
-};
+  createdAt: Timestamp;
+  photos: string[];
+}
 
 export type GoogleReview = {
   id: string;

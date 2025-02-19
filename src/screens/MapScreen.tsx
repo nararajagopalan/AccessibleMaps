@@ -98,7 +98,9 @@ export default function MapScreen() {
               address: result.formatted_address,
               googleRating: result.rating || 0,
               googleReviewCount: result.user_ratings_total || 0,
-              accessibilityRating: placeData?.aggregateAccessibilityRating || 0,
+              physicalRating: placeData?.aggregatePhysicalRating || 0,
+              sensoryRating: placeData?.aggregateSensoryRating || 0,
+              cognitiveRating: placeData?.aggregateCognitiveRating || 0,
               accessibilityReviewCount:
                 placeData?.accessibilityReviewCount || 0,
               photos: result.photos

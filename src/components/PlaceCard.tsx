@@ -65,56 +65,65 @@ export default function PlaceCard({ place, onReviewAdded }: PlaceCardProps) {
 
   return (
     <View style={styles.card}>
-      {place.photos && place.photos.length > 0 && (
-        <Image source={{ uri: place.photos[0] }} style={styles.image} />
-      )}
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("Place", {
+            placeId: place.id,
+            placeName: place.name,
+          })
+        }
+      >
+        {place.photos && place.photos.length > 0 && (
+          <Image source={{ uri: place.photos[0] }} style={styles.image} />
+        )}
 
-      <View style={styles.content}>
-        <Text style={styles.name}>{place.name}</Text>
-        <View style={styles.ratingContainer}>
-          <TouchableOpacity onPress={openDirections}>
-            <View style={styles.ratingBox}>
-              <Ionicons name="navigate" size={16} color="#4CAF50" />
-              <Text style={styles.rating}>Directions</Text>
-            </View>
-          </TouchableOpacity>
+        <View style={styles.content}>
+          <Text style={styles.name}>{place.name}</Text>
+          <View style={styles.ratingContainer}>
+            <TouchableOpacity
+              onPress={(e) => {
+                e.stopPropagation();
+                openDirections();
+              }}
+            >
+              <View style={styles.ratingBox}>
+                <Ionicons name="navigate" size={16} color="#4CAF50" />
+                <Text style={styles.rating}>Directions</Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("GoogleReviews", {
-                placeId: place.id,
-                placeName: place.name,
-              })
-            }
-          >
             <View style={styles.ratingBox}>
               <Ionicons name="star" size={16} color="#FFD700" />
               <Text style={styles.rating}>
                 {place.googleRating.toFixed(1)} ({place.googleReviewCount})
               </Text>
             </View>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("AccessibilityReviews", {
-                placeId: place.id,
-                placeName: place.name,
-              })
-            }
-          >
-            <View style={styles.ratingBox}>
-              <Ionicons name="accessibility" size={16} color="#4CAF50" />
-              <Text style={styles.rating}>
-                {place.accessibilityRating.toFixed(1)} (
-                {place.accessibilityReviewCount})
-              </Text>
+            <View style={styles.accessibilityRatings}>
+              <View style={styles.ratingRow}>
+                <Text style={styles.ratingLabel}>Physical:</Text>
+                <Text style={styles.rating}>
+                  {place.physicalRating?.toFixed(1) || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.ratingRow}>
+                <Text style={styles.ratingLabel}>Sensory:</Text>
+                <Text style={styles.rating}>
+                  {place.sensoryRating?.toFixed(1) || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.ratingRow}>
+                <Text style={styles.ratingLabel}>Cognitive:</Text>
+                <Text style={styles.rating}>
+                  {place.cognitiveRating?.toFixed(1) || "N/A"}
+                </Text>
+              </View>
             </View>
-          </TouchableOpacity>
-        </View>
+          </View>
 
-        <Text style={styles.address}>{place.address}</Text>
-      </View>
+          <Text style={styles.address}>{place.address}</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -176,5 +185,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 10,
+  },
+  accessibilityRatings: {
+    backgroundColor: "#F5F5F5",
+    padding: 8,
+    borderRadius: 8,
+    gap: 4,
+  },
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  ratingLabel: {
+    fontSize: 14,
+    color: "#666",
+    minWidth: 70,
   },
 });

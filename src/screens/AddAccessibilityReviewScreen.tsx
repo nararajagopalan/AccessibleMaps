@@ -27,9 +27,9 @@ type AddAccessibilityReviewRouteProp = RouteProp<
 export default function AddAccessibilityReviewScreen() {
   const route = useRoute<AddAccessibilityReviewRouteProp>();
   const navigation = useNavigation();
-  const [entryRating, setEntryRating] = useState(0);
-  const [restroomRating, setRestroomRating] = useState(0);
-  const [seatingRating, setSeatingRating] = useState(0);
+  const [physicalRating, setPhysicalRating] = useState(0);
+  const [sensoryRating, setSensoryRating] = useState(0);
+  const [cognitiveRating, setCognitiveRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [placeData, setPlaceData] = useState<FirestorePlace | null>(null);
@@ -93,7 +93,11 @@ export default function AddAccessibilityReviewScreen() {
         return;
       }
 
-      if (entryRating === 0 || restroomRating === 0 || seatingRating === 0) {
+      if (
+        physicalRating === 0 ||
+        sensoryRating === 0 ||
+        cognitiveRating === 0
+      ) {
         Alert.alert("Error", "Please rate all categories");
         return;
       }
@@ -112,10 +116,10 @@ export default function AddAccessibilityReviewScreen() {
         userId: auth.currentUser.uid,
         placeId: route.params.placeId,
         placeName: route.params.placeName,
-        entryRating,
-        restroomRating,
-        seatingRating,
-        overallRating: (entryRating + restroomRating + seatingRating) / 3,
+        physicalRating,
+        sensoryRating,
+        cognitiveRating,
+        overallRating: (physicalRating + sensoryRating + cognitiveRating) / 3,
         reviewText,
         createdAt: timestamp(),
         photos: photos,
@@ -129,7 +133,7 @@ export default function AddAccessibilityReviewScreen() {
 
       const newAggregateRating =
         (currentAggregateRating * currentReviewCount +
-          (entryRating + restroomRating + seatingRating) / 3) /
+          (physicalRating + sensoryRating + cognitiveRating) / 3) /
         (currentReviewCount + 1);
 
       navigation.goBack();
@@ -142,14 +146,23 @@ export default function AddAccessibilityReviewScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.ratingSection}>
-        <Text style={styles.categoryTitle}>Entry & Navigation</Text>
-        {renderStarRating(entryRating, setEntryRating)}
+        <Text style={styles.categoryTitle}>Physical Accessibility</Text>
+        <Text style={styles.categoryDescription}>
+          Rate accessibility for mobility, physical navigation, and facility use
+        </Text>
+        {renderStarRating(physicalRating, setPhysicalRating)}
 
-        <Text style={styles.categoryTitle}>Restrooms</Text>
-        {renderStarRating(restroomRating, setRestroomRating)}
+        <Text style={styles.categoryTitle}>Sensory Accessibility</Text>
+        <Text style={styles.categoryDescription}>
+          Rate accessibility for visual, auditory, and sensory needs
+        </Text>
+        {renderStarRating(sensoryRating, setSensoryRating)}
 
-        <Text style={styles.categoryTitle}>Seating & Service</Text>
-        {renderStarRating(seatingRating, setSeatingRating)}
+        <Text style={styles.categoryTitle}>Cognitive Accessibility</Text>
+        <Text style={styles.categoryDescription}>
+          Rate accessibility for wayfinding, communication, and understanding
+        </Text>
+        {renderStarRating(cognitiveRating, setCognitiveRating)}
       </View>
 
       <View style={styles.reviewSection}>
@@ -206,6 +219,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: 15,
     marginBottom: 10,
+  },
+  categoryDescription: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 10,
+    paddingHorizontal: 5,
   },
   starsContainer: {
     flexDirection: "row",

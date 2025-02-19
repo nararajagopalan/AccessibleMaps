@@ -9,16 +9,25 @@ import AuthNavigator from "./src/navigation/AuthNavigator";
 // Screens
 import MapScreen from "./src/screens/MapScreen";
 import GoogleReviewsScreen from "./src/screens/GoogleReviewsScreen";
-import AccessibilityReviewsScreen from "./src/screens/AccessibilityReviewsScreen";
 import AddAccessibilityReviewScreen from "./src/screens/AddAccessibilityReviewScreen";
 import TestMapScreen from "./src/screens/TestMapScreen";
+import PlaceScreen from "./src/screens/PlaceScreen";
 
 // Types
 export type RootStackParamList = {
   Map: undefined;
-  GoogleReviews: { placeId: string; placeName: string };
-  AccessibilityReviews: { placeId: string; placeName: string };
-  AddAccessibilityReview: { placeId: string; placeName: string };
+  Place: {
+    placeId: string;
+    placeName: string;
+  };
+  GoogleReviews: {
+    placeId: string;
+    placeName: string;
+  };
+  AddAccessibilityReview: {
+    placeId: string;
+    placeName: string;
+  };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -40,14 +49,14 @@ function MainNavigator() {
           })}
         />
         <Stack.Screen
-          name="AccessibilityReviews"
-          component={AccessibilityReviewsScreen}
-          options={({ route }) => ({ title: "Accessibility Reviews" })}
-        />
-        <Stack.Screen
           name="AddAccessibilityReview"
           component={AddAccessibilityReviewScreen}
           options={{ title: "Add Review" }}
+        />
+        <Stack.Screen
+          name="Place"
+          component={PlaceScreen}
+          options={{ title: "Details" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
